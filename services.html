@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <title>שירותי אבחון אנרגטי שיחוללו מהפך בביתך — PaletteVibes</title>
+    <meta name="description" content="ממפגש אבחון צבעי נשמה ועד עיצוב פנים לפי אנרגיה וצבעים — כל שירות מותאם אישית לאותיות שמך, מספרולוגיה וסימן המזל שלך. גלה מה מחכה לך.">
+    <meta name="keywords" content="עיצוב פנים לפי אנרגיה וצבעים, אבחון צבעי נשמה לבית, מספרולוגיה וצבעים, אבחון תדר הבית, עיצוב פנים רוחני">
+    
+    <!-- Zappy Analytics -->
+<script>
+(function() {
+  'use strict';
+  
+  // Configuration
+  var config = {
+    websiteId: 'c6f963eb-a542-43d1-9168-60a674cd0c1e',
+    apiUrl: 'https://api.zappy5.com/api/analytics/track',
+    sessionDuration: 30 * 60 * 1000, // 30 minutes
+    visitorDuration: 30 * 24 * 60 * 60 * 1000, // 30 days
+    trackPageViews: true,
+    trackClicks: true,
+    trackFormSubmissions: true
+  };
+  
+  // Generate or retrieve persistent visitor ID (30 days)
+  function getVisitorId() {
+    var visitorKey = 'zappy_visitor_' + config.websiteId;
+    var visitor = null;
+    
+    try {
+      visitor = localStorage.getItem(visitorKey);
+      if (visitor) {
+        var visitorData = JSON.parse(visitor);
+        var now = Date.now();
+        
+        // Check if visitor ID is still valid (30 days)
+        if (now - visitorData.created < config.visitorDuration) {
+          // Update last seen timestamp
+          visitorData.lastSeen = now;
+          localStorage.setItem(visitorKey, JSON.stringify(visitorData));
+          return visitorData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: LocalStorage not available');
+    }
+    
+    // Generate new visitor ID
+    var newVisitorId = 'zv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      localStorage.setItem(visitorKey, JSON.stringify({
+        id: newVisitorId,
+        created: Date.now(),
+        lastSeen: Date.now()
+      }));
+    } catch (e) {
+      // Continue without local storage
+    }
+    
+    return newVisitorId;
+  }
+  
+  // Generate or retrieve session ID (30 minutes)
+  function getSessionId() {
+    var sessionKey = 'zappy_session_' + config.websiteId;
+    var session = null;
+    
+    try {
+      session = sessionStorage.getItem(sessionKey);
+      if (session) {
+        var sessionData = JSON.parse(session);
+        var now = Date.now();
+        
+        // Check if session is still valid
+        if (now - sessionData.timestamp < config.sessionDuration) {
+          // Update timestamp
+          sessionData.timestamp = now;
+          sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+          return sessionData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: SessionStorage not available');
+    }
+    
+    // Generate new session ID
+    var newSessionId = 'zs_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        id: newSessionId,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // Continue without session storage
+    }
+    
+    return newSessionId;
+  }
+  
+  var visitorId = getVisitorId();
+  var sessionId = getSessionId();
+  
+  // Track an event
+  function trackEvent(eventType, data) {
+    data = data || {};
+    
+    var eventData = {
+      website_id: config.websiteId,
+      event_type: eventType,
+      page_path: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      visitor_id: visitorId,
+      session_id: sessionId,
+      metadata: data
+    };
+    
+    // Use sendBeacon if available (better for page unload events)
+    if (navigator.sendBeacon) {
+      var blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+      navigator.sendBeacon(config.apiUrl, blob);
+    } else {
+      // Fallback to fetch
+      fetch(config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData),
+        keepalive: true
+      }).catch(function(error) {
+        console.warn('Zappy Analytics: Failed to track event', error);
+      });
+    }
+  }
+  
+  // Track page view
+  if (config.trackPageViews) {
+    trackEvent('pageview', {
+      title: document.title,
+      url: window.location.href
+    });
+  }
+  
+  // Track clicks on important elements
+  if (config.trackClicks) {
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      
+      // Track button clicks (counted as actions)
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        var button = target.tagName === 'BUTTON' ? target : target.closest('button');
+        trackEvent('click', {
+          element: 'button',
+          text: button.textContent.trim().substring(0, 100),
+          id: button.id || null,
+          class: button.className || null
+        });
+      }
+      
+      // Track link clicks (navigation - not counted as actions)
+      else if (target.tagName === 'A' || target.closest('a')) {
+        var link = target.tagName === 'A' ? target : target.closest('a');
+        trackEvent('navigation', {
+          element: 'link',
+          text: link.textContent.trim().substring(0, 100),
+          href: link.href,
+          external: link.hostname !== window.location.hostname
+        });
+      }
+    }, true);
+  }
+  
+  // Track form submissions
+  if (config.trackFormSubmissions) {
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      
+      trackEvent('form_submit', {
+        form_id: form.id || null,
+        form_name: form.name || null,
+        form_action: form.action || null,
+        form_method: form.method || 'GET'
+      });
+    }, true);
+  }
+  
+  // Track time on page (send on page unload)
+  var pageLoadTime = Date.now();
+  
+  window.addEventListener('beforeunload', function() {
+    var timeOnPage = Math.floor((Date.now() - pageLoadTime) / 1000); // in seconds
+    
+    trackEvent('page_unload', {
+      time_on_page: timeOnPage,
+      page_path: window.location.pathname
+    });
+  });
+  
+  // Expose tracking function globally for custom events
+  window.zappyAnalytics = {
+    track: trackEvent,
+    getVisitorId: function() { return visitorId; },
+    getSessionId: function() { return sessionId; }
+  };
+  
+})();
+</script>
+<!-- End Zappy Analytics -->
+    <meta property="og:title" content="שירותי אבחון אנרגטי שיחוללו מהפך בביתך — PaletteVibes">
+    <meta property="og:description" content="ממפגש אבחון צבעי נשמה ועד עיצוב פנים לפי אנרגיה וצבעים — כל שירות מותאם אישית לאותיות שמך, מספרולוגיה וסימן המזל שלך. גלה מה מחכה לך.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="שירותי אבחון אנרגטי שיחוללו מהפך בביתך — PaletteVibes">
+    <meta name="twitter:description" content="ממפגש אבחון צבעי נשמה ועד עיצוב פנים לפי אנרגיה וצבעים — כל שירות מותאם אישית לאותיות שמך, מספרולוגיה וסימן המזל שלך. גלה מה מחכה לך.">
+    <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.umd.js"></script>
+    <!-- Mickidum Accessibility Toolbar -->
+    <script src="https://cdn.jsdelivr.net/gh/mickidum/acc_toolbar/acctoolbar/acctoolbar.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+
+    <style id="zappy-dropdown-submenu-styles">
+      /* ========== DESKTOP DROPDOWN SUBMENU STYLES ========== */
+      /* Base styles for dropdown submenus - parent must be positioned */
+      .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { position: relative; }
+      /* Submenu base - hidden by default */
+      .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { display: block !important; position: absolute !important; top: 100%; left: 0; min-width: 220px; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); padding: 8px 0; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; z-index: 1000; list-style: none; pointer-events: none; }
+      /* CRITICAL: Desktop hover styles to show dropdown */
+      .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Submenu item styling */
+      .sub-menu li { list-style: none; margin: 0; padding: 0; }
+      .sub-menu a { display: block !important; padding: 10px 16px !important; color: var(--text-dark, #333) !important; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 0.2s; }
+      .sub-menu .zappy-nav-child > a { padding-left: 28px !important; font-size: 0.9em !important; opacity: 0.85 !important; }
+      [dir="rtl"] .sub-menu .zappy-nav-child > a, html[lang="he"] .sub-menu .zappy-nav-child > a, html[lang="ar"] .sub-menu .zappy-nav-child > a { padding-left: 10px !important; padding-right: 28px !important; }
+      .sub-menu .zappy-nav-parent > a { font-weight: 600 !important; }
+      .sub-menu a:hover { background-color: #f5f5f5; }
+      /* RTL (Hebrew/Arabic) dropdown positioning */
+      [dir="rtl"] .nav-menu .sub-menu, [dir="rtl"] nav .sub-menu, [dir="rtl"] .navbar .sub-menu, html[lang="he"] .nav-menu .sub-menu, html[lang="he"] nav .sub-menu, html[lang="he"] .navbar .sub-menu, html[lang="ar"] .nav-menu .sub-menu, html[lang="ar"] nav .sub-menu, html[lang="ar"] .navbar .sub-menu { left: auto !important; right: 0 !important; }
+      /* Hide empty dropdown menus (exclude catalog sub-menus that use <a> children instead of <li>) */
+      .sub-menu:empty, .sub-menu:not(:has(li:not(.zappy-hidden-menu-item))):not(:has(> a)), .sub-menu:not(:has(li)):not(:has(> a)) { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+      /* Desktop: show submenu on Menu Group hover */
+      li:has(.menu-group-title):hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Menu Group title styling */
+      .nav-menu > li > .menu-group-title, #navMenu > li > .menu-group-title { display: inline-block; padding: 0.5rem 1rem; cursor: default; user-select: none; }
+      
+      /* ========== MOBILE SUBMENU STYLES ========== */
+      @media (max-width: 768px) {
+        .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { position: static !important; transform: none !important; box-shadow: none !important; background: transparent !important; max-height: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; padding: 0 !important; border-radius: 0 !important; }
+        .navbar .sub-menu.mobile-expanded, .nav-menu .sub-menu.mobile-expanded, #navMenu .sub-menu.mobile-expanded { max-height: none !important; overflow-y: visible !important; opacity: 1 !important; visibility: visible !important; padding: 8px 0 8px 16px !important; }
+        [dir="rtl"] .sub-menu.mobile-expanded, html[lang="he"] .sub-menu.mobile-expanded { padding: 8px 16px 8px 0 !important; }
+        /* Disable hover behavior on mobile */
+        .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 0; visibility: hidden; pointer-events: none; }
+        .nav-menu li > .sub-menu.mobile-expanded, nav li > .sub-menu.mobile-expanded, .navbar li > .sub-menu.mobile-expanded, #navMenu li > .sub-menu.mobile-expanded { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+        .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { display: flex !important; flex-wrap: wrap !important; align-items: center !important; position: relative !important; min-height: 44px !important; }
+        .nav-menu li:has(.sub-menu) > a, nav li:has(.sub-menu) > a, .navbar li:has(.sub-menu) > a, #navMenu li:has(.sub-menu) > a { flex: 1 !important; min-width: 0 !important; }
+        .nav-menu li:has(.sub-menu) > .menu-group-title, nav li:has(.sub-menu) > .menu-group-title, .navbar li:has(.sub-menu) > .menu-group-title, #navMenu li:has(.sub-menu) > .menu-group-title { flex: 1 !important; min-width: 0 !important; padding: 0 !important; line-height: inherit !important; }
+        .nav-menu li:has(.sub-menu) > .sub-menu, nav li:has(.sub-menu) > .sub-menu, .navbar li:has(.sub-menu) > .sub-menu, #navMenu li:has(.sub-menu) > .sub-menu { flex-basis: 100% !important; width: 100% !important; }
+        .nav-menu li:has(.sub-menu) > a [class*="chevron"], .nav-menu li:has(.sub-menu) > a [class*="arrow"], .nav-menu li:has(.sub-menu) > a .fa-chevron-down, .nav-menu li:has(.sub-menu) > a .fa-angle-down, nav li:has(.sub-menu) > a [class*="chevron"], nav li:has(.sub-menu) > a [class*="arrow"], #navMenu li:has(.sub-menu) > a [class*="chevron"], #navMenu li:has(.sub-menu) > a [class*="arrow"] { display: none !important; visibility: hidden !important; }
+        .mobile-submenu-toggle { display: flex !important; align-items: center !important; justify-content: center !important; width: 44px !important; height: auto !important; background: transparent !important; border: none !important; cursor: pointer !important; color: var(--text-dark) !important; position: static !important; flex-shrink: 0 !important; align-self: stretch !important; z-index: 2 !important; padding: 0 !important; margin: 0 !important; }
+        .mobile-submenu-toggle::after { content: '' !important; width: 0 !important; height: 0 !important; border-left: 6px solid transparent !important; border-right: 6px solid transparent !important; border-top: 7px solid currentColor !important; transition: transform 0.3s ease !important; }
+        .mobile-submenu-toggle.expanded::after { transform: rotate(180deg) !important; }
+        .sub-menu a { padding: 10px 0 !important; display: block !important; color: var(--text-dark) !important; white-space: normal !important; }
+        .sub-menu .zappy-nav-child > a { padding-left: 28px !important; font-size: 0.9em !important; opacity: 0.85 !important; }
+        [dir="rtl"] .sub-menu .zappy-nav-child > a, html[lang="he"] .sub-menu .zappy-nav-child > a, html[lang="ar"] .sub-menu .zappy-nav-child > a { padding-left: 0 !important; padding-right: 28px !important; }
+        .sub-menu .zappy-nav-parent > a { font-weight: 600 !important; }
+        .nav-menu.active, #navMenu.active { max-width: 100vw !important; overflow-x: hidden !important; box-sizing: border-box !important; }
+        .navbar .sub-menu li a, nav.navbar .sub-menu li a, .zappy-products-dropdown .sub-menu a { color: var(--text-dark) !important; }
+      }
+      @media (min-width: 769px) { .mobile-submenu-toggle { display: none !important; } }
+    </style>
+
+    <style id="mobile-lang-menu-deployed-css">
+    @media (max-width: 768px) {
+      .lang-switcher,
+      .nav-cta-container .lang-switcher,
+      .nav-container .lang-switcher,
+      .navbar .lang-switcher,
+      .navbar .nav-cta-container .lang-switcher,
+      .nav-icons-left .lang-switcher,
+      .nav-ecommerce-icons .lang-switcher { display: none !important; }
+      .mobile-lang-menu { width: 100%; border-top: 1px solid rgba(128,128,128,0.2); padding: 8px 0 0 0; margin-top: 8px; }
+      .mobile-lang-toggle { display: flex !important; align-items: center; justify-content: space-between; width: 100%; padding: 12px 16px; background: none; border: none; cursor: pointer; font-size: 15px; color: inherit; font-family: inherit; }
+      .mobile-lang-toggle::after { content: ''; display: inline-block; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform 0.3s ease; margin-left: 8px; }
+      .mobile-lang-toggle.expanded::after { transform: rotate(-135deg); }
+      .mobile-lang-options { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+      .mobile-lang-options.expanded { max-height: 300px; }
+      .mobile-lang-option { display: flex !important; align-items: center; gap: 10px; padding: 10px 24px; text-decoration: none; color: inherit; font-size: 14px; font-family: inherit; }
+      .mobile-lang-option:hover { background: rgba(128,128,128,0.1); }
+      .mobile-lang-option.active { font-weight: 600; opacity: 0.7; pointer-events: none; }
+      .mobile-lang-option img { width: 20px; height: 20px; border-radius: 50%; }
+    }
+    @media (min-width: 769px) {
+      .mobile-lang-menu { display: none !important; }
+    }
+    </style>
+
+    <style id="zappy-widget-visibility">
+      #mic-access-tool-general-button, .mic-access-tool-general-button,
+      #mic-init-access-tool .mic-access-tool-general-button, #mic-init-access-tool #mic-access-tool-general-button,
+      ._access-icon, #mic-access-tool-box, .mic-access-tool-box,
+      #mic-init-access-tool #mic-access-tool-box, div[id*="mic-access-tool-box"], ._access-menu {
+        display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
+      }
+    </style>
+</head>
+<body>
+
+  <nav class="navbar" dir="rtl">
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+    <svg class="hamburger-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+    <svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: none;">
+      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+  </button>
+
+  <button class="phone-header-btn" data-phone="[business_phone]" aria-label="Call">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+  </button>
+
+  <div class="nav-container">
+    <div class="nav-right-group"><div class="nav-brand">
+      <a href="/" class="logo-link">
+        <img class="logo" data-placeholder="logo" data-context="business logo" width="160" height="40" src="/assets/business-logo.webp" alt="PaletteVibes">
+      </a>
+    </div><ul class="nav-menu" id="navMenu"><li><a href="/services">שירותים</a></li><li><a href="/about">אודות</a></li></ul></div>
+
+    
+
+    <div class="nav-cta-container">
+      <a href="/contact" class="nav-cta-btn">צור קשר</a>
+    </div>
+  </div>
+</nav>
+<script>
+
+// Navbar Mobile Menu Toggle and Contrast Fix
+(function() {
+  // Use 'load' event instead of 'DOMContentLoaded' to ensure we run AFTER all other scripts
+  window.addEventListener('load', function() {
+    
+    // FIX MOBILE BUTTON CONTRAST
+    // Detect navbar background color and apply contrasting color to mobile buttons
+    const navbar = document.querySelector('.navbar, nav, header');
+    if (!navbar) {
+      console.log('[Navbar] Navbar element not found');
+      return;
+    }
+    
+    // DECLARE VARIABLES EARLY to avoid Temporal Dead Zone errors
+    // These are used in multiple places below
+    let mobileToggle = document.getElementById('mobileToggle') ||
+                       document.querySelector('.mobile-toggle') ||
+                       document.querySelector('.hamburger') ||
+                       document.querySelector('.hamburger-menu') ||
+                       document.querySelector('.menu-toggle') ||
+                       document.querySelector('.burger-menu') ||
+                       document.querySelector('[aria-label="Menu"]') ||
+                       document.querySelector('[aria-label="תפריט"]');
+    
+    const phoneBtn = document.querySelector('.phone-header-btn');
+    
+    const computedStyle = window.getComputedStyle(navbar);
+    let bgColor = computedStyle.backgroundColor;
+    
+    console.log('[Navbar] Initial navbar background:', bgColor);
+    
+    // Check if background is transparent or rgba with 0 alpha
+    const isTransparent = bgColor === 'transparent' || 
+                         bgColor === 'rgba(0, 0, 0, 0)' ||
+                         (bgColor.startsWith('rgba') && bgColor.includes(', 0)'));
+    
+    if (isTransparent) {
+      // Check for background-image or gradient
+      const bgImage = computedStyle.backgroundImage;
+      if (bgImage && bgImage !== 'none') {
+        console.log('[Navbar] Navbar has background image/gradient, using dark text');
+        bgColor = 'rgb(240, 240, 240)'; // Assume light background
+      } else {
+        // Transparent navbar - check body background
+        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+        console.log('[Navbar] Navbar transparent, using body background:', bodyBg);
+        bgColor = bodyBg;
+      }
+    }
+    
+    // Calculate luminance to determine if background is light or dark
+    const rgb = bgColor.match(/\d+/g);
+    if (rgb && rgb.length >= 3) {
+      const r = parseInt(rgb[0]);
+      const g = parseInt(rgb[1]);
+      const b = parseInt(rgb[2]);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      
+      // Mobile button colors are set by Claude's AI-generated CSS (same as .nav-menu a)
+      // No dynamic color overrides needed - colors come from the generated navbar CSS
+      console.log('[Navbar] Mobile button colors preserved from Claude CSS (luminance:', luminance.toFixed(2) + ')');
+      
+      // FIX ICON SIZES - Ensure SVGs are properly sized and visible
+      // INJECT CRITICAL CSS TO OVERRIDE ANY CONFLICTING RULES
+      const criticalCSS = document.createElement('style');
+      criticalCSS.id = 'zappy-mobile-nav-fix';
+      const htmlLang = document.documentElement.lang || 'en';
+      const htmlDir = document.documentElement.dir || 'ltr';
+      // Check both dir attribute AND lang for RTL detection
+      // dir="rtl" is the most reliable indicator
+      const isRTL = htmlDir === 'rtl' || htmlLang === 'he' || htmlLang === 'ar';
+      
+      criticalCSS.textContent = `
+        /* Hide mobile buttons on desktop, show only on mobile */
+        @media (min-width: 769px) {
+          .mobile-toggle,
+          .phone-header-btn {
+            display: none !important;
+          }
+        }
+        
+        /* Show and position mobile buttons correctly on mobile */
+        @media (max-width: 768px) {
+          .mobile-toggle,
+          .phone-header-btn {
+            position: absolute !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            z-index: 1001 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            border: none !important;
+            cursor: pointer !important;
+            padding: 6px !important;
+            background: none !important;
+            color: var(--nav-text, var(--text-dark)) !important;
+          }
+          
+          /* LTR positioning (default): hamburger LEFT, phone RIGHT */
+          html:not([dir="rtl"]):not([lang="he"]):not([lang="ar"]) .mobile-toggle,
+          html[dir="ltr"] .mobile-toggle {
+            left: 12px !important;
+            right: auto !important;
+          }
+          html:not([dir="rtl"]):not([lang="he"]):not([lang="ar"]) .phone-header-btn,
+          html[dir="ltr"] .phone-header-btn {
+            right: 12px !important;
+            left: auto !important;
+          }
+          
+          /* RTL positioning: hamburger RIGHT, phone LEFT */
+          html[dir="rtl"] .mobile-toggle,
+          html[lang="he"] .mobile-toggle,
+          html[lang="ar"] .mobile-toggle {
+            right: 12px !important;
+            left: auto !important;
+          }
+          html[dir="rtl"] .phone-header-btn,
+          html[lang="he"] .phone-header-btn,
+          html[lang="ar"] .phone-header-btn {
+            left: 12px !important;
+            right: auto !important;
+          }
+          
+          /* CRITICAL: Ensure nav-container has min-height on mobile */
+          /* All children are positioned absolutely/fixed on mobile, so height:auto collapses to 0 */
+          .nav-container {
+            min-height: 70px !important;
+            position: relative !important;
+          }
+          
+          /* Ensure SVG icons are properly sized and inherit color */
+          .mobile-toggle svg,
+          .phone-header-btn svg {
+            width: 24px !important;
+            height: 24px !important;
+            /* Don't force display - let JavaScript control hamburger/close toggle */
+          }
+          
+          /* Reset nav-cta-container on mobile - remove desktop box-shadow/padding */
+          /* that creates a visible ghost box when CTA button is hidden */
+          .nav-cta-container {
+            box-shadow: none !important;
+            padding: 0 !important;
+          }
+          
+          /* Hide nav-cta-container entirely on mobile when there's no lang-switcher */
+          /* (only the CTA button is inside, and it's hidden on mobile) */
+          .nav-cta-container:not(:has(.lang-switcher)) {
+            display: none !important;
+          }
+          
+          /* CRITICAL: Prevent hero image fade gradient from bleeding over headline text */
+          /* The .image-fade-gradient has bottom: -30px (extends below parent) */
+          /* On mobile stacked layout, this overlaps the h1 text below the image */
+          .hero-image-column {
+            overflow: hidden !important;
+          }
+          .image-fade-gradient {
+            bottom: 0 !important;
+          }
+          
+          /* Hide desktop language switcher on mobile - hamburger menu handles it */
+          /* High specificity to override stored CSS */
+          .lang-switcher,
+          .nav-cta-container .lang-switcher,
+          .nav-container .lang-switcher,
+          .navbar .lang-switcher,
+          .navbar .nav-cta-container .lang-switcher {
+            display: none !important;
+          }
+        }
+      `;
+      
+      // Remove existing fix if present and inject new one
+      const existing = document.getElementById('zappy-mobile-nav-fix');
+      if (existing) existing.remove();
+      document.head.appendChild(criticalCSS);
+      
+      console.log('[Navbar] Critical CSS injected for mobile nav positioning');
+      
+      // ONLY apply inline positioning styles on mobile viewport
+      // On desktop, the CSS handles hiding these buttons with display: none
+      // Inline styles were breaking desktop layout by overriding CSS
+      const isMobileViewport = window.innerWidth <= 768;
+      
+      if (mobileToggle) {
+        // Icon sizing applies to all viewports for consistency
+        const hamburgerIcon = mobileToggle.querySelector('.hamburger-icon');
+        const closeIcon = mobileToggle.querySelector('.close-icon');
+        
+        if (hamburgerIcon) {
+          hamburgerIcon.style.setProperty('width', '24px', 'important');
+          hamburgerIcon.style.setProperty('height', '24px', 'important');
+          hamburgerIcon.style.setProperty('display', 'block', 'important'); // Show hamburger by default
+        }
+        if (closeIcon) {
+          closeIcon.style.setProperty('width', '24px', 'important');
+          closeIcon.style.setProperty('height', '24px', 'important');
+          closeIcon.style.setProperty('display', 'none', 'important'); // Hide close icon by default
+        }
+        
+        // ONLY set positioning inline styles on mobile
+        if (isMobileViewport) {
+          mobileToggle.style.setProperty('position', 'absolute', 'important');
+          mobileToggle.style.setProperty('top', '50%', 'important');
+          mobileToggle.style.setProperty('transform', 'translateY(-50%)', 'important');
+          mobileToggle.style.setProperty('z-index', '1001', 'important');
+          
+          // Clear any inline left/right so CSS can take over based on html[dir]
+          mobileToggle.style.removeProperty('left');
+          mobileToggle.style.removeProperty('right');
+          
+          console.log('[Navbar] Mobile toggle positioning applied (mobile viewport)');
+        } else {
+          // On desktop, clear any positioning styles to let CSS handle it
+          mobileToggle.style.removeProperty('position');
+          mobileToggle.style.removeProperty('top');
+          mobileToggle.style.removeProperty('transform');
+          mobileToggle.style.removeProperty('z-index');
+          mobileToggle.style.removeProperty('left');
+          mobileToggle.style.removeProperty('right');
+          console.log('[Navbar] Desktop viewport - cleared mobile toggle inline positioning');
+        }
+      }
+      
+      if (phoneBtn) {
+        // Icon sizing applies to all viewports
+        const phoneIcon = phoneBtn.querySelector('svg');
+        if (phoneIcon) {
+          phoneIcon.style.width = '24px';
+          phoneIcon.style.height = '24px';
+          phoneIcon.setAttribute('width', '24');
+          phoneIcon.setAttribute('height', '24');
+        }
+        
+        // ONLY set positioning inline styles on mobile
+        if (isMobileViewport) {
+          phoneBtn.style.setProperty('position', 'absolute', 'important');
+          phoneBtn.style.setProperty('top', '50%', 'important');
+          phoneBtn.style.setProperty('transform', 'translateY(-50%)', 'important');
+          phoneBtn.style.setProperty('z-index', '1001', 'important');
+          
+          // Clear any inline left/right so CSS can take over based on html[dir]
+          phoneBtn.style.removeProperty('left');
+          phoneBtn.style.removeProperty('right');
+          
+          console.log('[Navbar] Phone button positioning applied (mobile viewport)');
+        } else {
+          // On desktop, clear any positioning styles to let CSS handle it
+          phoneBtn.style.removeProperty('position');
+          phoneBtn.style.removeProperty('top');
+          phoneBtn.style.removeProperty('transform');
+          phoneBtn.style.removeProperty('z-index');
+          phoneBtn.style.removeProperty('left');
+          phoneBtn.style.removeProperty('right');
+          console.log('[Navbar] Desktop viewport - cleared phone button inline positioning');
+        }
+      }
+    } else {
+      console.log('[Navbar] Could not parse background color:', bgColor);
+    }
+    
+    // MOBILE MENU TOGGLE
+    // Re-query in case DOM changed (mobileToggle already declared at top of function)
+    mobileToggle = document.getElementById('mobileToggle') ||
+                   document.querySelector('.mobile-toggle') ||
+                   document.querySelector('.hamburger') ||
+                   document.querySelector('.hamburger-menu') ||
+                   document.querySelector('.menu-toggle') ||
+                   document.querySelector('.burger-menu') ||
+                   document.querySelector('[aria-label="Menu"]') ||
+                   document.querySelector('[aria-label="תפריט"]');
+    
+    // EXPANDED SEARCH: Find nav menu by ID or class
+    const navMenu = document.getElementById('navMenu') ||
+                  document.querySelector('.nav-menu') ||
+                  document.querySelector('.nav-links') ||
+                  document.querySelector('nav ul:not(.submenu)');
+    
+    if (!mobileToggle || !navMenu) {
+      console.log('[Navbar] Mobile toggle or menu not found:', { toggle: !!mobileToggle, menu: !!navMenu });
+      return;
+    }
+    
+    // Ensure navMenu has ID for CSS targeting
+    if (!navMenu.id) {
+      navMenu.id = 'navMenu';
+    }
+    
+    console.log('[Navbar] Initializing mobile menu...');
+    
+    // Remove any existing event listeners by cloning the button
+    const newToggle = mobileToggle.cloneNode(true);
+    mobileToggle.parentNode.replaceChild(newToggle, mobileToggle);
+    
+    // Toggle menu on button click - use newToggle now
+    newToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const hamburgerIcon = this.querySelector('.hamburger-icon');
+      const closeIcon = this.querySelector('.close-icon');
+      const isActive = navMenu.classList.contains('active');
+      
+      if (isActive) {
+        // Close menu
+        navMenu.classList.remove('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'block', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+        console.log('[Navbar] Menu closed');
+      } else {
+        // Open menu
+        navMenu.classList.add('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'none', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'block', 'important');
+        document.body.style.overflow = 'hidden';
+        console.log('[Navbar] Menu opened');
+      }
+    });
+    
+    // Close menu when clicking nav links (but NOT dropdown toggles)
+    const navLinks = navMenu.querySelectorAll('a');
+    navLinks.forEach(function(link) {
+      link.addEventListener('click', function() {
+        // Don't close if it's a dropdown child (unless it's a real navigation link)
+        if (this.getAttribute('href') === '#') return;
+        
+        const hamburgerIcon = newToggle.querySelector('.hamburger-icon');
+        const closeIcon = newToggle.querySelector('.close-icon');
+        
+        navMenu.classList.remove('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'block', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+        console.log('[Navbar] Menu closed (link clicked)');
+      });
+    });
+    
+    // DROPDOWN MENU TOGGLE (for mobile and touch devices)
+    var dropdownToggles = navMenu.querySelectorAll('.dropdown-toggle');
+    dropdownToggles.forEach(function(toggle) {
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var parent = this.closest('.nav-dropdown');
+        if (!parent) return;
+        
+        // Close other open dropdowns at the same level
+        var siblings = parent.parentNode.querySelectorAll('.nav-dropdown.open');
+        siblings.forEach(function(sib) {
+          if (sib !== parent) sib.classList.remove('open');
+        });
+        
+        parent.classList.toggle('open');
+        console.log('[Navbar] Dropdown toggled:', parent.classList.contains('open') ? 'open' : 'closed');
+      });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.nav-dropdown')) {
+        var openDropdowns = document.querySelectorAll('.nav-dropdown.open');
+        openDropdowns.forEach(function(dd) { dd.classList.remove('open'); });
+      }
+    });
+    
+    console.log('[Navbar] Dropdown handlers initialized for ' + dropdownToggles.length + ' dropdowns');
+    
+    // Phone button functionality (phoneBtn already declared at top of function)
+    if (phoneBtn) {
+      phoneBtn.addEventListener('click', function() {
+        // Get phone number from placeholder in page or use default
+        const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
+        const phoneNumber = phoneLinks.length > 0 
+          ? phoneLinks[0].getAttribute('href').replace('tel:', '')
+          : '[business_phone]';
+        
+        window.location.href = 'tel:' + phoneNumber;
+        console.log('[Navbar] Phone button clicked');
+      });
+    }
+    
+    console.log('[Navbar] Mobile menu initialized successfully');
+    
+    // === WHATSAPP BUTTON VISIBILITY FIX ===
+    // Ensure WhatsApp floating button is hidden on desktop and visible on mobile
+    // IMPORTANT: Only target the floating button by its class, NOT generic wa.me links
+    const handleWhatsAppVisibility = function() {
+      const whatsappBtn = document.querySelector('.whatsapp-float');
+      if (whatsappBtn) {
+        const isDesktop = window.innerWidth >= 769;
+        if (isDesktop) {
+          whatsappBtn.style.setProperty('display', 'none', 'important');
+          whatsappBtn.style.setProperty('visibility', 'hidden', 'important');
+          whatsappBtn.style.setProperty('opacity', '0', 'important');
+          whatsappBtn.style.setProperty('pointer-events', 'none', 'important');
+          console.log('[WhatsApp] Button hidden on desktop');
+        } else {
+          whatsappBtn.style.removeProperty('display');
+          whatsappBtn.style.removeProperty('visibility');
+          whatsappBtn.style.removeProperty('opacity');
+          whatsappBtn.style.removeProperty('pointer-events');
+          console.log('[WhatsApp] Button visible on mobile');
+        }
+      }
+    };
+    
+    // Run on load
+    handleWhatsAppVisibility();
+    
+    // Run on resize with debouncing
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(handleWhatsAppVisibility, 100);
+    });
+  });
+})();
+
+</script>
+  
+  <main>
+    <section class="services-intro-section" data-layout-spec="שירותים-intro" dir="rtl">
+  <div class="services-intro-container">
+
+    <!-- Content Column (RIGHT in RTL) -->
+    <div class="services-intro-content">
+
+      <div class="services-intro-label">
+        <span class="services-intro-label-line"></span>
+        <span class="services-intro-label-text">השירותים שלנו</span>
+      </div>
+
+      <h1 class="services-intro-heading">אבחון צבעי הנשמה —<br>עיצוב שמתחיל מבפנים</h1>
+
+      <p class="services-intro-body">כל בית נושא תדר ייחודי, כשם שכל אדם נושא בתוכו עולם של צבעים, אנרגיות ותחושות. הגישה שלנו משלבת אבחון צבעי נשמה לבית על פי אותיות השם, מספרולוגיית תאריך הלידה והמזל — עם עיצוב פנים מקצועי של עשרים שנה — כדי ליצור מרחב שמרגיש כמו בית אמיתי: כזה שמחבר אתכם לעצמכם, משפיע על תת המודע ומשנה את האווירה מהיסוד.</p>
+
+      <h3 class="services-intro-subheading">אבחון וייעוץ לחדר אחד, לבית שלם, או לאיפוס אנרגטי מלא</h3>
+
+      <div class="services-intro-meta">
+        <div class="services-intro-meta-item">
+          <div class="services-intro-meta-icon">
+            <svg data-element-type="icon" data-icon-type="svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 6v6l4 2"></path>
+            </svg>
+          </div>
+          <span>20 שנות ניסיון בעיצוב פנים</span>
+        </div>
+        <div class="services-intro-meta-item">
+          <div class="services-intro-meta-icon">
+            <svg data-element-type="icon" data-icon-type="svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+          </div>
+          <span>שיטה המשלבת רוחניות, פסיכולוגיה ועיצוב</span>
+        </div>
+        <div class="services-intro-meta-item">
+          <div class="services-intro-meta-icon">
+            <svg data-element-type="icon" data-icon-type="svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </div>
+          <span>מחדר אחד ועד עיצוב הבית כולו</span>
+        </div>
+      </div>
+
+      <div class="services-intro-cta-row">
+        <a href="/contact" class="btn-primary services-intro-btn">לקביעת אבחון אישי</a>
+      </div>
+
+    </div>
+
+    <!-- Image Column (LEFT in RTL) -->
+    <figure class="services-intro-figure">
+      <div class="services-intro-image-wrapper">
+        <img data-placeholder="services-intro-image-1" data-context="Bright, airy interior design studio workspace with natural light streaming through large windows. A beautifully arranged design table with color palette swatches, fabric textile samples in warm earthy tones, a color wheel, paint chips arranged by hue, dried botanicals in a vase, and a mood board with material samples. The aesthetic is refined and editorial — warm cream walls, wooden surfaces, soft gold and sage green accents. Atmosphere feels calm, expert, and spiritually elevated — like a luxury design atelier." width="620" height="760" src="/assets/site-services-intro-image-1.webp" alt="סטודיו עיצוב פנים עם לוחות צבעים, בדים ודוגמאות חומרים באור טבעי">
+        <div class="services-intro-image-accent"></div>
+      </div>
+      <div class="services-intro-floating-badge">
+        <span class="services-intro-badge-number">20</span>
+        <span class="services-intro-badge-label">שנות<br>מומחיות</span>
+      </div>
+    </figure>
+
+  </div>
+
+  <!-- Bottom angled divider -->
+  <div class="services-intro-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,72 L0,28 L1440,0 L1440,72 Z" fill="#FBF7F1"></path>
+    </svg>
+  </div>
+
+</section>
+
+<section class="services-offerings-section" data-layout-spec="שירותים-offerings" dir="rtl">
+  <div class="services-offerings-container">
+
+    <!-- Section Header -->
+    <div class="services-offerings-header">
+      <span class="services-offerings-eyebrow">השירותים שלנו</span>
+      <h2 class="services-offerings-title">אבחון צבעי נשמה לבית — מסע של שינוי ובהירות</h2>
+      <p class="services-offerings-subtitle">כל שירות מותאם אישית לאנרגיה הייחודית שלך — לאותיות שמך, למספרי תאריך הלידה ולמזלך. יחד נגלה את הצבעים שמרכיבים את נשמתך ויוצרים בבית שלך תחושה של שלמות, זרימה ואמת.</p>
+    </div>
+
+    <!-- 2x2 Grid of Cards -->
+    <div class="services-offerings-grid">
+
+      <!-- Card 1: Soul Color Reading -->
+      <article class="services-offering-card">
+        <div class="services-offering-img-wrap">
+          <img data-placeholder="services-offerings-image-1" data-context="A serene, luminous flat-lay of a person\\" s="" name="" written="" in="" elegant="" hebrew="" calligraphy="" on="" cream="" paper,="" surrounded="" by="" color="" swatches="" warm="" earth="" tones,="" soft="" purples,="" and="" muted="" golds="" —="" suggesting="" spiritual="" diagnosis="" soul="" analysis.="" natural="" light,="" minimal="" editorial="" aesthetic.'="" width="600" height="400" src="/assets/site-services-offerings-image-1.webp" alt="אבחון צבעי הנשמה האישיים">
+        </div>
+        <div class="services-offering-body">
+          <h3 class="services-offering-title">אבחון צבעי הנשמה</h3>
+          <p class="services-offering-desc">מסע אישי ועמוק לגילוי הצבעים שמרכיבים את נשמתך. על בסיס אותיות שמך, מספרי תאריך לידתך ומזלך, אאבחן את הפלטה הרוחנית-אנרגטית שלך — הצבעים שמשפיעים על תת המודע, מחזקים את תחושת הזהות ומביאים לידי ביטוי את מי שאתה באמת.</p>
+          <div class="services-offering-ideal">
+            <span class="services-offering-ideal-label">מתאים במיוחד ל:</span>
+            <span class="services-offering-ideal-text">מי שמרגיש ניתוק מהבית שלו ומחפש חיבור עמוק יותר לעצמו</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2: Home Frequency Review -->
+      <article class="services-offering-card">
+        <div class="services-offering-img-wrap">
+          <img data-placeholder="services-offerings-image-2" data-context="A beautifully lit living room interior with warm neutral tones, soft sage green and dusty rose accents, featuring a sense of energy flow and calm atmosphere. Editorial interior design photography style, architectural whitespace, spiritual and refined aesthetic." width="600" height="400" src="/assets/site-services-offerings-image-2.webp" alt="אבחון תדר הבית">
+        </div>
+        <div class="services-offering-body">
+          <h3 class="services-offering-title">אבחון תדר הבית</h3>
+          <p class="services-offering-desc">הבית שלך פועל בתדר אנרגטי משלו. באבחון מקיף זה נבדוק האם תדר הבית תואם את מי שאתה — פסיכולוגית, פיזיולוגית ורוחנית. נזהה חסמים אנרגטיים, נגלה היכן הבית "מדבר" נגדך, ונתווה את הדרך לסביבת מגורים שמחזקת ומרוממת.</p>
+          <div class="services-offering-ideal">
+            <span class="services-offering-ideal-label">מתאים במיוחד ל:</span>
+            <span class="services-offering-ideal-text">מי שמרגיש שהבית שלו לא נותן לו מנוחה או לא מרגיש כמו בית אמיתי</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3: Room-by-Room Palette Guidance -->
+      <article class="services-offering-card">
+        <div class="services-offering-img-wrap">
+          <img data-placeholder="services-offerings-image-3" data-context="Close-up of elegant color palette chips and material samples arranged on a light stone surface — warm whites, terracotta, sage, and muted gold — alongside an architectural floor plan sketch. Interior design consultation aesthetic, premium and refined." width="600" height="400" src="/assets/site-services-offerings-image-3.webp" alt="ליווי פלטת צבעים לכל חדר">
+        </div>
+        <div class="services-offering-body">
+          <h3 class="services-offering-title">ליווי פלטת צבעים חדר-חדר</h3>
+          <p class="services-offering-desc">כל חדר בבית נושא תפקיד אנרגטי שונה. בשירות זה נתאים לכל מרחב בבית את פלטת הצבעים המדויקת — כזו שמשרתת את מטרת החדר, מתחברת לאנרגיה שלך ויוצרת זרימה הרמונית בין כל חלקי הבית. הפלטה מגובה בהבנה פסיכולוגית ורוחנית של השפעת הצבע.</p>
+          <div class="services-offering-ideal">
+            <span class="services-offering-ideal-label">מתאים במיוחד ל:</span>
+            <span class="services-offering-ideal-text">בעלי בתים שרוצים לשדרג את האווירה מבלי לעבור שיפוץ גדול</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 4: Renovation / Restyling Color Direction -->
+      <article class="services-offering-card">
+        <div class="services-offering-img-wrap">
+          <img data-placeholder="services-offerings-image-4" data-context="A bright, airy renovated interior space in progress — fresh plaster walls with warm undertones, natural wood floors, large windows with soft light streaming in. A designer\\" s="" mood="" board="" with="" fabric="" swatches="" and="" paint="" samples="" visible.="" aspirational="" interior="" transformation,="" editorial="" premium.'="" width="600" height="400" src="/assets/site-services-offerings-image-4.webp" alt="כיוון צבע לשיפוץ ועיצוב מחדש">
+        </div>
+        <div class="services-offering-body">
+          <h3 class="services-offering-title">כיוון צבע לשיפוץ ועיצוב מחדש</h3>
+          <p class="services-offering-desc">בפתחו של שיפוץ או עיצוב מחדש, הצבע הוא ההחלטה הקריטית ביותר. עם 20 שנות ניסיון בעיצוב פנים ואבחון צבעים, אלווה אותך בבחירת פלטה שמשקפת את מי שאתה ואת הבית שתמיד חלמת עליו — כזו שמשפיעה על האנרגיה בבית ועל השפעת הצבעים על האנרגיה בבית לשנים קדימה.</p>
+          <div class="services-offering-ideal">
+            <span class="services-offering-ideal-label">מתאים במיוחד ל:</span>
+            <span class="services-offering-ideal-text">מי שעומד בפני שיפוץ ורוצה להבטיח שהתוצאה תרגיש נכונה מבפנים ומבחוץ</span>
+          </div>
+        </div>
+      </article>
+
+    </div><!-- /grid -->
+
+    <!-- Bottom Divider: thin muted-gold line with vertical markers -->
+    <div class="services-offerings-divider" aria-hidden="true">
+      <div class="services-offerings-divider-line">
+        <span class="services-offerings-divider-marker"></span>
+        <span class="services-offerings-divider-marker"></span>
+        <span class="services-offerings-divider-marker"></span>
+        <span class="services-offerings-divider-marker"></span>
+        <span class="services-offerings-divider-marker"></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="services-process-section" data-layout-spec="שירותים-process" dir="rtl">
+  <div class="services-process-container">
+
+    <!-- Section Header -->
+    <div class="services-process-header">
+      <span class="services-process-eyebrow">המתודולוגיה שלנו</span>
+      <h2 class="services-process-title">חמישה שלבים לאבחון צבעי הנשמה ותדר הבית</h2>
+      <p class="services-process-intro">תהליך מובנה ומדויק המשלב ניתוח אנרגטי, פסיכולוגי ועיצובי — מהנתונים האישיים שלך ועד להחלטות צבע ברמת החדר. כל שלב בנוי על הקודם ומוביל לתוצאה שמרגישה נכונה מבפנים.</p>
+    </div>
+
+    <!-- Steps Sequence -->
+    <div class="services-process-steps">
+
+      <!-- Connector Line (desktop only) -->
+      <div class="services-process-connector" aria-hidden="true"></div>
+
+      <!-- Step 1 -->
+      <article class="services-process-step">
+        <div class="services-process-step-number" aria-hidden="true">01</div>
+        <div class="services-process-step-body">
+          <h3 class="services-process-step-title">איסוף הנתונים האישיים</h3>
+          <p class="services-process-step-desc">אוספים את אותיות שמך המלא, תאריך לידתך ומזלך — הבסיס לפענוח תדר הנשמה הייחודי שלך.</p>
+        </div>
+      </article>
+
+      <!-- Step 2 -->
+      <article class="services-process-step">
+        <div class="services-process-step-number" aria-hidden="true">02</div>
+        <div class="services-process-step-body">
+          <h3 class="services-process-step-title">פענוח פרופיל הצבע האנרגטי</h3>
+          <p class="services-process-step-desc">מפענחים את קשרי המספרים, האותיות והמזל לפלטת צבעי הנשמה — הצבעים שמשקפים את מהותך הפנימית.</p>
+        </div>
+      </article>
+
+      <!-- Step 3 -->
+      <article class="services-process-step">
+        <div class="services-process-step-number" aria-hidden="true">03</div>
+        <div class="services-process-step-body">
+          <h3 class="services-process-step-title">קריאת אווירת הבית הקיימת</h3>
+          <p class="services-process-step-desc">בוחנים את הצבעים, האור והתחושה הקיימים בביתך — מזהים מה תומך בך ומה מעכב את האנרגיה.</p>
+        </div>
+      </article>
+
+      <!-- Step 4 -->
+      <article class="services-process-step">
+        <div class="services-process-step-number" aria-hidden="true">04</div>
+        <div class="services-process-step-body">
+          <h3 class="services-process-step-title">בניית כיוון הפלטה</h3>
+          <p class="services-process-step-desc">מגבשים פלטת צבעים אישית ומדויקת המתאימה לתדר שלך, לסגנון חייך ולמטרות הרגשיות שהגדרת.</p>
+        </div>
+      </article>
+
+      <!-- Step 5 -->
+      <article class="services-process-step">
+        <div class="services-process-step-number" aria-hidden="true">05</div>
+        <div class="services-process-step-body">
+          <h3 class="services-process-step-title">תרגום להחלטות עיצוב ממשיות</h3>
+          <p class="services-process-step-desc">מיישמים את הפלטה ברמת החדר — קירות, ריפוד, אביזרים ותאורה — כך שכל פינה תשדר שלמות ותת-מודעית תתמוך בך.</p>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Diagram Image -->
+    <div class="services-process-image-wrap">
+      <figure class="services-process-figure">
+        <img data-placeholder="services-process-image-1" data-context="An elegant flat-lay or architectural diagram showing color analysis and interior design process: a refined mood board with color swatches in warm earth tones and sage greens, numerology symbols, zodiac wheel fragments, and room sketches arranged on a cream linen surface. The composition feels like a luxury interior designer\" s="" studio="" table="" —="" precise,="" spiritual,="" and="" editorial.="" soft="" natural="" light="" from="" the="" side.="" no="" people.'="" width="900" height="420" src="/assets/site-services-process-image-1.webp" alt="תהליך אבחון צבעי הנשמה ותדר הבית — לוח מצב רוח ופלטת צבעים">
+        <figcaption class="services-process-figcaption">אבחון צבעי נשמה לבית — מהנתון האישי ועד לפינה המושלמת בביתך</figcaption>
+      </figure>
+    </div>
+
+  </div>
+
+  <!-- Bottom Divider -->
+  <div class="services-process-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewBox="0 0 1200 64" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,64 L0,32 Q150,18 300,28 T600,20 Q750,14 900,26 T1200,18 L1200,64 Z" fill="#F2EAE0"></path>
+    </svg>
+  </div>
+
+</section>
+
+<section class="services-benefits-section" data-layout-spec="שירותים-benefits" dir="rtl">
+  <div class="services-benefits-container">
+
+    <!-- START side: text composition -->
+    <div class="services-benefits-content">
+
+      <div class="services-benefits-eyebrow">
+        <span class="services-benefits-line"></span>
+        <span class="services-benefits-label">למה PaletteVibes</span>
+      </div>
+
+      <h2 class="services-benefits-heading">כשהבית מדבר בשפת הנשמה שלך</h2>
+
+      <p class="services-benefits-lead">עיצוב פנים שמתחיל מבפנים — מהשם, מתאריך הלידה, מהמזל. כשצבעי הבית מתאימים לאנרגיה האישית שלך, כל כניסה הביתה מרגישה כמו חזרה לעצמך.</p>
+
+      <div class="services-benefits-list">
+
+        <article class="services-benefit-item">
+          <div class="services-benefit-icon-wrap">
+            <svg data-element-type="icon" data-icon-type="svg" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="14" cy="14" r="10" stroke="currentColor" stroke-width="1.2"></circle>
+              <path d="M14 8 C14 8, 10 12, 14 14 C18 16, 14 20, 14 20" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <div class="services-benefit-text">
+            <h3 class="services-benefit-title">עיגון רגשי ואנרגטי בבית</h3>
+            <p class="services-benefit-desc">כשהצבעים בסביבה שלך מהדהדים עם תדר הנשמה שלך, נוצר חיבור עמוק שמשרה שקט, ביטחון ותחושת שייכות. הבית הופך למרחב שמחזיק אותך — לא רק מבחינה פיזית, אלא גם נפשית ורוחנית.</p>
+          </div>
+        </article>
+
+        <article class="services-benefit-item">
+          <div class="services-benefit-icon-wrap">
+            <svg data-element-type="icon" data-icon-type="svg" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="5" y="5" width="18" height="18" rx="1" stroke="currentColor" stroke-width="1.2"></rect>
+              <path d="M5 14 Q10 10, 14 14 Q18 18, 23 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <div class="services-benefit-text">
+            <h3 class="services-benefit-title">התאמה בין זהות פנימית למרחב חיצוני</h3>
+            <p class="services-benefit-desc">אבחון צבעי הנשמה לבית חושף את הפער בין מי שאתה באמת לבין הסביבה שבה אתה חי. הפלטה המותאמת אישית לפי אותיות השם ומספרי תאריך הלידה יוצרת הרמוניה שמשפיעה על תת המודע ועל האנרגיה בבית.</p>
+          </div>
+        </article>
+
+        <article class="services-benefit-item">
+          <div class="services-benefit-icon-wrap">
+            <svg data-element-type="icon" data-icon-type="svg" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M14 5 L14 23 M5 14 L23 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+              <circle cx="14" cy="14" r="4" stroke="currentColor" stroke-width="1.2"></circle>
+            </svg>
+          </div>
+          <div class="services-benefit-text">
+            <h3 class="services-benefit-title">בחירות עיצוב שנולדות מתוכך</h3>
+            <p class="services-benefit-desc">במקום לרדוף אחרי טרנדים חולפים, תקבל פלטה שמגיעה ממקום אותנטי ועמוק — כזו שמרגישה נכון בגוף, בנפש ובאנרגיה. כל פרט בבית יהפוך לבחירה מכוונת שמחזקת את תחושת השלמות שלך.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- END side: tall image -->
+    <figure class="services-benefits-figure">
+      <img data-placeholder="services-benefits-image-1" data-context="A serene, luminous interior scene for a spiritual interior design studio. A beautifully lit living room with warm natural light streaming through sheer curtains, casting soft golden tones across textured linen sofas, natural wood surfaces, and carefully curated decorative objects in earthy sage greens, warm creams, and muted golds. The palette feels deeply intentional — calm, soulful, and balanced. Minimal clutter, architectural calm, and a sense of energy alignment through color. Photographed in editorial style, vertical orientation, high-end interior design magazine quality." width="580" height="780" src="/assets/site-services-benefits-image-1.webp" alt="מרחב מגורים שליו עם תאורה טבעית וצבעים מאוזנים המשקפים אנרגיה ורוחניות">
+      <div class="services-benefits-figure-accent"></div>
+    </figure>
+
+  </div>
+
+  <!-- Bottom paper-edge divider -->
+  <div class="services-benefits-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,72 L0,32 Q30,28 60,34 T130,29 Q170,33 210,27 T290,31 Q330,35 380,26 T460,30 Q510,34 560,27 T650,32 Q700,28 750,33 T840,27 Q890,31 940,26 T1030,30 Q1080,34 1130,28 T1220,32 Q1270,36 1320,29 T1400,33 L1440,31 L1440,72 Z" fill="#FAF8F3"></path>
+    </svg>
+  </div>
+
+</section>
+
+<section class="services-showcase-section" data-layout-spec="שירותים-showcase" dir="rtl">
+  <div class="services-showcase-container">
+
+    <header class="services-showcase-header">
+      <p class="services-showcase-eyebrow">תוצאות מהחיים האמיתיים</p>
+      <h2 class="services-showcase-title">כשהצבע פוגש את הנשמה — הבית משתנה</h2>
+      <p class="services-showcase-subtitle">כל מרחב מתוכנן בהתאם לאבחון צבעי הנשמה האישי — שילוב של אסטרולוגיה, נומרולוגיה ואנרגטיקה שמתורגם לשפת צבעים חיה ומדויקת</p>
+    </header>
+
+    <div class="services-showcase-rule"></div>
+
+    <div class="services-showcase-grid">
+
+      <!-- Tile 1: Bedroom -->
+      <article class="services-showcase-tile">
+        <figure class="services-showcase-figure">
+          <img data-placeholder="services-showcase-image-1" data-context="A serene, luxurious Israeli bedroom with a calming color palette of soft sage green, dusty rose, and warm ivory. The room features linen bedding, natural wood nightstands, soft ambient lighting from bedside lamps, sheer curtains filtering golden afternoon light, and carefully chosen art prints on the wall. The atmosphere is deeply restful, spiritually grounded, and emotionally soothing — a space designed through soul-color diagnosis." width="600" height="400" src="/assets/site-services-showcase-image-1.webp" alt="חדר שינה מרגיע עם פלטת צבעים שנבחרה לפי אבחון צבעי הנשמה">
+        </figure>
+        <div class="services-showcase-caption">
+          <span class="services-showcase-tag">חדר שינה</span>
+          <h3 class="services-showcase-caption-title">שקט שמגיע מהפנים</h3>
+          <p class="services-showcase-caption-text">כשצבעי חדר השינה מתאימים לתדר האישי שלך, הגוף יודע להירגע עמוק יותר. לקוחה זו קיבלה פלטת גוונים בהתאם לאותיות שמה ומספרי לידתה — ותחושת השינה השתנתה מהיום הראשון.</p>
+        </div>
+      </article>
+
+      <!-- Tile 2: Living Room -->
+      <article class="services-showcase-tile">
+        <figure class="services-showcase-figure">
+          <img data-placeholder="services-showcase-image-2" data-context="A warm, balanced family living room in an Israeli home with harmonious earth tones — terracotta, warm sand, muted olive, and soft gold accents. The space has a large comfortable sofa, woven rugs, ceramic vases, natural wood shelving with books and plants, and large windows with warm afternoon light. The room feels emotionally balanced, grounded, and inviting — a space where family energy flows freely and harmoniously, designed through color frequency analysis." width="600" height="400" src="/assets/site-services-showcase-image-2.webp" alt="סלון משפחתי מאוזן עם הרמוניית צבעים אנרגטית">
+        </figure>
+        <div class="services-showcase-caption">
+          <span class="services-showcase-tag">סלון משפחתי</span>
+          <h3 class="services-showcase-caption-title">הרמוניה שמרגישים בכניסה</h3>
+          <p class="services-showcase-caption-text">הסלון הוא לב הבית — המקום שבו האנרגיה של כל בני המשפחה נפגשת. עיצוב לפי תדר הבית יוצר איזון עדין בין האנרגיות השונות, מפחית חיכוך ומגביר תחושת שייכות ואהבה משותפת.</p>
+        </div>
+      </article>
+
+      <!-- Tile 3: Creative Workspace -->
+      <article class="services-showcase-tile">
+        <figure class="services-showcase-figure">
+          <img data-placeholder="services-showcase-image-3" data-context="A focused, elegant home creative workspace or studio in an Israeli home. The room features a clean white desk with warm wood accents, a curated bookshelf, a statement wall in a deep teal or rich indigo color, carefully placed art objects, soft directional lighting, and a single large plant. The atmosphere is mentally stimulating yet calm — a space that enhances creative flow and focus through intentional color selection aligned with the owner spiritual and numerological blueprint." width="600" height="400" src="/assets/site-services-showcase-image-3.webp" alt="סביבת עבודה יצירתית ממוקדת עם צבעים שמעוררים השראה">
+        </figure>
+        <div class="services-showcase-caption">
+          <span class="services-showcase-tag">פינת עבודה יצירתית</span>
+          <h3 class="services-showcase-caption-title">מרחב שמעיר את הכישרון</h3>
+          <p class="services-showcase-caption-text">צבעים משפיעים ישירות על ריכוז, יצירתיות וזרימת רעיונות. כשפינת העבודה שלך מתוכננת לפי הצבעים שמרכיבים את נשמתך, הביצועים משתפרים — לא מאמץ, אלא מתוך חיבור טבעי ואותנטי.</p>
+        </div>
+      </article>
+
+    </div>
+
+    <footer class="services-showcase-footer">
+      <div class="services-showcase-rule services-showcase-rule--narrow"></div>
+      <p class="services-showcase-footer-text">כל אחד מהמרחבים הללו תוכנן לאחר אבחון צבעי נשמה לבית — תהליך מדויק שמשלב נומרולוגיה, מזל ואנרגטיקה עם ניסיון של 20 שנה בעיצוב פנים</p>
+    </footer>
+
+  </div>
+</section>
+  </main>
+  
+  <footer class="site-footer" dir="rtl">
+  <div class="footer-inner">
+    <div class="footer-top">
+
+      <!-- Column 1: Company Info -->
+      <div class="footer-col footer-brand">
+        <img class="logo" data-placeholder="logo" data-context="business logo" width="150" height="40" src="/assets/business-logo.webp" alt="PaletteVibes">
+        <p class="footer-tagline">עיצוב פנים, אבחון צבעים,<br>רוחניות ואנרגטיקה</p>
+        <div class="footer-accent-line"></div>
+        <p class="footer-desc">חוויה של עיצוב מדויק, אנרגיה מאוזנת ושפת צבעים שמדברת אל הנשמה. נגלה יחד את הפלטה שמתאימה בדיוק לך.</p>
+      </div>
+
+      <!-- Column 2: Quick Links -->
+      <div class="footer-col footer-links-col">
+        <h4 class="footer-heading">ניווט מהיר</h4>
+        <ul class="footer-links">
+          <li><a href="/services">שירותים</a></li>
+          <li><a href="/about">אודות</a></li>
+          <li><a href="/contact">צור קשר</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 3: Contact Info -->
+      <div class="footer-col footer-contact-col">
+        <h4 class="footer-heading">יצירת קשר</h4>
+        <ul class="footer-contact">
+          <li>
+            <span class="contact-icon"><i class="fas fa-envelope"></i></span>
+            <span class="contact-text"><a href="mailto:[business_email]">[business_email]</a></span>
+          </li>
+          <li>
+            <span class="contact-icon"><i class="fas fa-phone"></i></span>
+            <span class="contact-text"><a href="tel:[business_phone]">[business_phone]</a></span>
+          </li>
+          <li><a href="/"><span class="contact-icon"><i class="fas fa-map-marker-alt"></i></span>
+            <span class="contact-text">[business_address]</span></a></li>
+        </ul>
+      </div>
+
+      <!-- Column 4: Social Media -->
+      <div class="footer-col footer-social-col">
+        <h4 class="footer-heading">עקבו אחרינו</h4>
+        <div class="footer-social">
+          <a href="[facebook_handle]" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="[instagram_handle]" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="[whatsapp_handle]" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p class="footer-social-note">הצטרפו לקהילה שלנו ברשתות החברתיות וקבלו השראה יומיומית לעיצוב ואנרגיה</p>
+      </div>
+
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="footer-bottom">
+      <p class="footer-copyright">© 2026 PaletteVibes. כל הזכויות שמורות.</p>
+      <div class="footer-legal">
+        <a href="/privacy">מדיניות פרטיות</a>
+        <span class="footer-divider">|</span>
+        <a href="/terms">תנאי שימוש</a>
+        <span class="footer-divider">|</span>
+        <a href="/accessibility">נגישות</a>
+        <span class="footer-divider">|</span>
+        <a href="https://zappy5.com" target="_blank" class="zappy-attribution">נוצר באמצעות Zappy</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+  
+  <a href="https://wa.me/[whatsapp_handle]" class="whatsapp-float" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  
+  <div data-integration="accessibility:toolbar"></div>
+
+    <script src="/script.js"></script>
+
+    <script id="zappy-mobile-submenu-script">
+    (function() {
+      function initMobileSubmenuToggles() {
+        if (window.innerWidth > 768) {
+          document.querySelectorAll('.mobile-submenu-toggle').forEach(function(btn) { btn.remove(); });
+          document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) { menu.classList.remove('mobile-expanded'); });
+          return;
+        }
+        var items = document.querySelectorAll('.nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu)');
+        items.forEach(function(li) {
+          if (li.querySelector('.mobile-submenu-toggle')) return;
+          var submenu = li.querySelector('.sub-menu');
+          var parentLink = li.querySelector(':scope > a');
+          if (!submenu || !parentLink) return;
+          var toggleBtn = document.createElement('button');
+          toggleBtn.className = 'mobile-submenu-toggle';
+          toggleBtn.setAttribute('aria-label', 'Toggle submenu');
+          toggleBtn.setAttribute('type', 'button');
+          parentLink.insertAdjacentElement('afterend', toggleBtn);
+          toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) {
+              if (menu !== submenu) { menu.classList.remove('mobile-expanded'); var t = menu.parentElement.querySelector('.mobile-submenu-toggle'); if(t) t.classList.remove('expanded'); }
+            });
+            submenu.classList.toggle('mobile-expanded');
+            toggleBtn.classList.toggle('expanded');
+          });
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileSubmenuToggles); }
+      else { initMobileSubmenuToggles(); }
+      var resizeTimer; window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(initMobileSubmenuToggles, 250); });
+      // Re-initialize when mobile menu becomes visible (MutationObserver)
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes') {
+            var target = mutation.target;
+            if (target.classList && (target.classList.contains('active') || target.classList.contains('open'))) {
+              setTimeout(initMobileSubmenuToggles, 100);
+            }
+          }
+        });
+      });
+      setTimeout(function() {
+        document.querySelectorAll('.mobile-menu, .nav-menu, #navMenu, nav').forEach(function(menu) {
+          observer.observe(menu, { attributes: true, attributeFilter: ['class', 'style'] });
+        });
+      }, 500);
+    })();
+    </script>
+
+    <script id="zappy-mobile-lang-menu-script">
+    (function() {
+      function initMobileLangMenu() {
+        if (window.innerWidth > 768) {
+          var existingMenu = document.querySelector('.mobile-lang-menu');
+          if (existingMenu) existingMenu.remove();
+          return;
+        }
+        if (document.querySelector('.mobile-lang-menu')) return;
+        var switcher = document.querySelector('.lang-switcher');
+        if (!switcher) return;
+        var dropdown = switcher.querySelector('.lang-switcher-dropdown');
+        if (!dropdown) return;
+        var options = dropdown.querySelectorAll('.lang-option');
+        if (options.length === 0) return;
+        var navMenu = document.getElementById('navMenu') || document.querySelector('.nav-menu') || document.querySelector('nav ul');
+        if (!navMenu) return;
+        var currentLang = document.documentElement.lang || 'en';
+        var langConfigs = {
+          he: {name:'עברית',flag:'https://api.iconify.design/circle-flags/il.svg'},
+          en: {name:'English',flag:'https://api.iconify.design/circle-flags/us.svg'},
+          ar: {name:'العربية',flag:'https://api.iconify.design/circle-flags/sa.svg'},
+          fr: {name:'Français',flag:'https://api.iconify.design/circle-flags/fr.svg'},
+          es: {name:'Español',flag:'https://api.iconify.design/circle-flags/es.svg'},
+          de: {name:'Deutsch',flag:'https://api.iconify.design/circle-flags/de.svg'},
+          ru: {name:'Русский',flag:'https://api.iconify.design/circle-flags/ru.svg'},
+          zh: {name:'中文',flag:'https://api.iconify.design/circle-flags/cn.svg'},
+          ja: {name:'日本語',flag:'https://api.iconify.design/circle-flags/jp.svg'},
+          pt: {name:'Português',flag:'https://api.iconify.design/circle-flags/br.svg'},
+          it: {name:'Italiano',flag:'https://api.iconify.design/circle-flags/it.svg'},
+          ko: {name:'한국어',flag:'https://api.iconify.design/circle-flags/kr.svg'}
+        };
+        var container = document.createElement('div');
+        container.className = 'mobile-lang-menu';
+        var currentConfig = langConfigs[currentLang] || {name:currentLang,flag:''};
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'mobile-lang-toggle';
+        toggleBtn.type = 'button';
+        var currentFlagHtml = currentConfig.flag ? '<img src="' + currentConfig.flag + '" width="20" height="20" alt="" style="border-radius:50%;margin-right:8px;margin-left:8px;">' : '';
+        toggleBtn.innerHTML = currentFlagHtml + currentConfig.name;
+        container.appendChild(toggleBtn);
+        var optionsDiv = document.createElement('div');
+        optionsDiv.className = 'mobile-lang-options';
+        var currentLink = document.createElement('a');
+        currentLink.className = 'mobile-lang-option active';
+        currentLink.href = '#';
+        currentLink.innerHTML = currentFlagHtml + currentConfig.name;
+        optionsDiv.appendChild(currentLink);
+        options.forEach(function(opt) {
+          var link = document.createElement('a');
+          link.className = 'mobile-lang-option';
+          link.href = opt.getAttribute('href');
+          link.innerHTML = opt.innerHTML;
+          optionsDiv.appendChild(link);
+        });
+        container.appendChild(optionsDiv);
+        navMenu.appendChild(container);
+        toggleBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleBtn.classList.toggle('expanded');
+          optionsDiv.classList.toggle('expanded');
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileLangMenu); }
+      else { initMobileLangMenu(); }
+      window.addEventListener('resize', function() { clearTimeout(window._mlrt); window._mlrt = setTimeout(initMobileLangMenu, 250); });
+    })();
+    </script>
+</body>
+</html>

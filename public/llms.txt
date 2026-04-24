@@ -1,0 +1,47 @@
+# Business — Generative Engine Optimization Map
+
+---
+
+## Pages
+
+### בית
+https://example.com
+אבחון צבעי נשמה לבית לפי שם, תאריך לידה ומזל — שיטה ייחודית המשלבת רוחניות, אנרגטיקה ועיצוב פנים. שנה את תדר ביתך היום.
+
+### שירותים
+https://example.com/services
+ממפגש אבחון צבעי נשמה ועד עיצוב פנים לפי אנרגיה וצבעים — כל שירות מותאם אישית לאותיות שמך, מספרולוגיה וסימן המזל שלך. גלה מה מחכה לך.
+
+### אודות
+https://example.com/about
+מעצבת פנים ומאבחנת צבעים עם 20 שנה בתחום, המתמחה בפענוח תדר הבית לפי שם ותאריך לידה. גלי את הסיפור שמאחורי השיטה הייחודית שמשנה חיים.
+
+### צור קשר
+https://example.com/contact
+מוכנה לחוות את השפעת הצבעים על האנרגיה בבית שלך? צרי קשר עכשיו ונתחיל יחד מסע אישי של חיבור בין נשמתך לצבעי הבית המושלמים עבורך.
+
+## Legal & Policy
+
+### Privacy Policy
+https://example.com/privacy
+Information about how user data is collected, stored, and protected.
+
+### Terms & Conditions
+https://example.com/terms
+Legal terms describing service usage, rights, and policies.
+
+### Accessibility Statement
+https://example.com/accessibility
+Information about WCAG compliance and accessibility features.
+
+---
+
+# Business Context (for LLM understanding)
+
+## About Business
+---
+
+# Additional Resources
+
+- **Sitemap**: https://example.com/sitemap.xml
+- **Robots.txt**: https://example.com/robots.txt
